@@ -1,0 +1,30 @@
+@import "src/styles/variable"
+
+.context_menu
+  position: absolute
+  border: 1px solid $primaryColor
+  border-radius: 10px
+  width: 144px
+  background: #FFF
+  padding-bottom: 10px
+  z-index: 2
+
+.context_menu_item
+  height: 28px
+  display: flex
+  align-items: center
+  cursor: pointer
+  transition: background .2s
+  &:hover
+    background: #EDEDED
+  margin-top: 10px
+  padding: 5px 5px 5px 10px
+
+.context_menu_img
+  width: 18px
+  height: 18px
+
+.context_menu_text
+  margin-left: 12px
+  font-size: 18px
+  line-height: 18px
