@@ -8,7 +8,9 @@ type PropsType = {
 }
 const ContextMenuItem = ({icon, text, callback}: PropsType) => {
     return (
-        <div className={styles.context_menu_item} onClick={() => callback(true)}>
+        <div className={styles.context_menu_item} onClick={() => {
+            callback(true)
+        }}>
             <img src={icon} alt="icon" className={styles.context_menu_img}/>
             <p className={styles.context_menu_text}>
                 {text}

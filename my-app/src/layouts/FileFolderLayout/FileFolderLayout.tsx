@@ -9,6 +9,7 @@ import {MoveFolderFileDialog} from "../../components/MoveFolderFileDialog/MoveFo
 type PropsType = {
     children: any
     type: 'folder' | 'file'
+    title: string
 }
 export type CordsType = {
     x: number
@@ -24,6 +25,7 @@ export const FileFolderLayout = React.memo((props: PropsType) => {
     const onOutsideClick = useCallback(() => {
         setIsContainerClick(false)
         setContextMenuClick(null)
+        setEditMode(false)
     }, [])
     const onClick = useCallback(() => {
         setIsContainerClick(true)
@@ -43,10 +45,11 @@ export const FileFolderLayout = React.memo((props: PropsType) => {
                 style={{width: 150}}
             >
                 {isEditMode ?
-                    <FolderForm type={props.type} folderTitle={'music'} setEditMode={setEditMode}/> : props.children}
+                    <FolderForm isEditMode={true} type={props.type} old_title={props.title}
+                                setEditMode={setEditMode}/> : props.children}
             </div>
-            <MoveFolderFileDialog setOpen={setMove} isOpen={isMove} />
-            {contextMenuClick && <ContextMenu setContextMenuClick={setContextMenuClick}
+            <MoveFolderFileDialog setOpen={setMove} isOpen={isMove}/>
+            {contextMenuClick && <ContextMenu title={props.title} type={props.type} setContextMenuClick={setContextMenuClick}
                                               setMove={setMove}
                                               cords={contextMenuClick}
                                               setEditMode={setEditMode}/>}

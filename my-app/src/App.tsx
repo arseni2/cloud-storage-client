@@ -19,7 +19,7 @@ function App() {
             <AddFilesBtn setOpen={setIsAddFiles} open={isAddFiles}/>
             <AddFolder setIsAddFolder={setIsAddFolder}/>
             <AddFilesDialogContent setIsAddFiles={setIsAddFiles} isAddFiles={isAddFiles}/>
-            {isAddFolder && <FolderForm setEditMode={setIsAddFolder} folderTitle={''} type={'folder'}/>}
+            {isAddFolder && <FolderForm isEditMode={false} setEditMode={setIsAddFolder} old_title={''} type={'folder'}/>}
         </div>
     );
 }

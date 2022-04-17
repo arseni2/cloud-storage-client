@@ -2,37 +2,56 @@ import React, {useState} from 'react';
 import folder from '../../assets/image/folder.png'
 import file from '../../assets/image/file.png'
 import {Input} from "../../share-components/input/Input";
+import {useDispatch, useSelector} from "react-redux";
+import {
+    createFolderThunk,
+    removeError,
+    renameFileThunk,
+    renameFolderThunk
+} from "../../redux/reducers/FileFolderReducer";
+import {getErrorMessage} from "../../redux/selectors/FileFolderReducerSelectors";
 
 type PropsType = {
     setEditMode: (edit: boolean) => void
-    folderTitle: string
+    old_title: string
     type: 'folder' | 'file'
+    isEditMode: boolean
 }
 export const FolderForm = (props: PropsType) => {
-    const [folderTitle, setFolderTitle] = useState(props.folderTitle)
+    const dispatch = useDispatch()
+    const errorCreateFolder = useSelector(getErrorMessage)
+    const [title, setTitle] = useState(props.old_title)
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFolderTitle(e.target.value)
+        setTitle(e.target.value)
     }
     const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            console.log(folderTitle) //will be save to server folder title
-            props.setEditMode(false)
+            if(props.isEditMode) {
+                props.type === 'folder'
+                    ? dispatch(renameFolderThunk({new_title: title, old_title: props.old_title}))
+                    : dispatch(renameFileThunk({new_title: title, old_title: props.old_title}))
+            } else {
+                dispatch(removeError())
+                dispatch(createFolderThunk({title, parent_title: null}))
+            }
         }
         if (e.key === 'Escape') {
             props.setEditMode(false)
         }
     }
-    console.log('RERENDER FolderForm')
     return (
         <div style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            marginTop: props.folderTitle ? 0 : 30
+            marginTop: props.old_title ? 0 : 30
         }}>
             <img src={props.type === 'folder' ? folder : file} alt="folder"/>
-            <Input autoFocus value={folderTitle} onChange={onChange} type="text"
+            <Input autoFocus value={title} onChange={onChange} type="text"
                    onKeyDown={onKeyDown}/>
+            <p style={{color: 'red'}}>
+                {errorCreateFolder && errorCreateFolder}
+            </p>
         </div>
     );
-};
+}
