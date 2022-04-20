@@ -1,11 +1,19 @@
 import {createAsyncThunk, createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {addFiles, createFolder, getFolderFiles, removeFileOrFolder, renameFile, renameFolder} from "../../api/api";
+import {
+    addFiles,
+    createFolder, getFolderChildren,
+    getFolderFiles,
+    moveToFolder,
+    removeFileOrFolder,
+    renameFile,
+    renameFolder
+} from "../../api/api";
 import {
     createFolderParams,
     errorResponse, errorResponseFiles,
     FileType,
     FolderType,
-    getFileFoldersResponse, removeFileOrFolderParams,
+    getFileFoldersResponse, getFolderChildrenParams, moveToFolderParams, removeFileOrFolderParams,
     renameFileOrFolderParams
 } from "../../api/api.types";
 
@@ -63,6 +71,28 @@ export const addFilesThunk = createAsyncThunk(
     }
 )
 
+export const moveToFolderThunk = createAsyncThunk(
+    'moveToFolder',
+    async (payload: moveToFolderParams, thunkAPI) => {
+        try {
+            const data = await moveToFolder(payload)
+            return {
+                data,
+                type: payload.type
+            }
+        } catch (e) {
+            return thunkAPI.rejectWithValue('')
+        }
+    }
+)
+
+export const getFolderChildrenThunk = createAsyncThunk(
+    'getFolderChildren',
+    (folder_title: string) => {
+        return getFolderChildren(folder_title)
+    }
+)
+
 type initialStateType = getFileFoldersResponse & {
     error: string
     loading: boolean
@@ -72,11 +102,20 @@ const initialSlice = createSlice<initialStateType, any>({
     name: 'fileFolderReducer',
     initialState: {folders: [], files: [], loading: true, error: ''},
     reducers: {
+        // @ts-ignore
         removeError: state => {
             state.error = ''
         }
     },
     extraReducers: {
+        [getFolderChildrenThunk.fulfilled.type]: (state, action: PayloadAction<getFileFoldersResponse>) => {
+            state.files = action.payload.files
+            state.folders = action.payload.folders
+            state.loading = false
+        },
+        [getFolderChildrenThunk.pending.type]: (state) => {
+            state.loading = true
+        },
         [getFolderFileThunk.fulfilled.type]: (state, action: PayloadAction<getFileFoldersResponse>) => {
             state.files = action.payload.files
             state.folders = action.payload.folders
@@ -93,6 +132,7 @@ const initialSlice = createSlice<initialStateType, any>({
             })
         },
         [createFolderThunk.fulfilled.type]: (state, action: PayloadAction<FolderType>) => {
+            state.error = ''
             state.folders.push(action.payload as never)
         },
         [createFolderThunk.rejected.type]: (state, action: PayloadAction<errorResponse>) => {
@@ -114,6 +154,16 @@ const initialSlice = createSlice<initialStateType, any>({
         },
         [addFilesThunk.rejected.type]: (state, action: PayloadAction<errorResponseFiles>) => {
             state.error = action.payload.message
+        },
+        [moveToFolderThunk.fulfilled.type]: (state, action: PayloadAction<{type: 'file' | 'folder', data: FileType | FolderType}>) => {
+            state.error = ''
+            if(action.payload.type === 'folder') {
+                // @ts-ignore
+                state.folders = state.folders.filter(folder => folder !== action.payload.data.title)
+            } else {
+                // @ts-ignore
+                state.files = state.files.filter(file => file.filename !== action.payload.data.filename)
+            }
         }
     }
 })

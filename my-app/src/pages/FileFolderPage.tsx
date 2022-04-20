@@ -4,17 +4,29 @@ import {File} from "../components/File/File";
 import {useLocation} from "react-router-dom";
 import {getFromUrlLastWord} from "../utils/utils";
 import {useDispatch, useSelector} from "react-redux";
-import {getFolderFileThunk} from "../redux/reducers/FileFolderReducer";
+import {getFolderChildrenThunk, getFolderFileThunk} from "../redux/reducers/FileFolderReducer";
 import {getFilesSelector, getFoldersSelector, getLoadingSelector} from "../redux/selectors/FileFolderReducerSelectors";
 
 export const FileFolderPage = React.memo((props: any) => {
     const dispatch = useDispatch()
-    useEffect(() => {
-        dispatch(getFolderFileThunk())
-    }, [])
     const location = useLocation()
     const last = getFromUrlLastWord(location.pathname)
-    console.log(last)
+    const file = (/[.]/.exec(last)) ? /[^.]+$/.exec(last) : undefined
+    useEffect(() => {
+        console.log(last)
+        if(last) {
+            if(!file) {
+                dispatch(getFolderChildrenThunk(last))
+            } else {
+                window.open(`http://localhost:7000/file/detail/${last}`, '_blank')
+            }
+        }
+    }, [last])
+    useEffect(() => {
+        if(!last) {
+            dispatch(getFolderFileThunk())
+        }
+    }, [last])
     const folders = useSelector(getFoldersSelector)
     const files = useSelector(getFilesSelector)
     const loading = useSelector(getLoadingSelector)

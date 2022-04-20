@@ -5,6 +5,7 @@ import OutsideClickHandler from "react-outside-click-handler";
 import styles from './FileFolderLayout.module.sass'
 import {FolderForm} from "../../components/addFolderForm/FolderForm";
 import {MoveFolderFileDialog} from "../../components/MoveFolderFileDialog/MoveFolderFileDialog";
+import {useLocation, useNavigate} from "react-router-dom";
 
 type PropsType = {
     children: any
@@ -16,6 +17,9 @@ export type CordsType = {
     y: number
 }
 export const FileFolderLayout = React.memo((props: PropsType) => {
+    const navigate = useNavigate()
+    const location = useLocation()
+
     const [isContainerClick, setIsContainerClick] = useState(false)
     const [contextMenuClick, setContextMenuClick] = useState<null | CordsType>(null)
 
@@ -45,14 +49,24 @@ export const FileFolderLayout = React.memo((props: PropsType) => {
                 style={{width: 150}}
             >
                 {isEditMode ?
-                    <FolderForm isEditMode={true} type={props.type} old_title={props.title}
-                                setEditMode={setEditMode}/> : props.children}
+                    <FolderForm isEditMode={true} type={props.type} old_title={props.title} setEditMode={setEditMode}/>
+                    :
+                    <div
+                        style={{display: 'contents'}}
+                        onDoubleClick={(e) => {
+                            navigate(location.pathname.slice(0, -1) + '/' + props.title)
+                        }}
+                    >
+                        {props.children}
+                    </div>
+                }
             </div>
-            <MoveFolderFileDialog setOpen={setMove} isOpen={isMove}/>
-            {contextMenuClick && <ContextMenu title={props.title} type={props.type} setContextMenuClick={setContextMenuClick}
-                                              setMove={setMove}
-                                              cords={contextMenuClick}
-                                              setEditMode={setEditMode}/>}
+            <MoveFolderFileDialog type={props.type} setOpen={setMove} isOpen={isMove} title={props.title}/>
+            {contextMenuClick &&
+                <ContextMenu title={props.title} type={props.type} setContextMenuClick={setContextMenuClick}
+                             setMove={setMove}
+                             cords={contextMenuClick}
+                             setEditMode={setEditMode}/>}
         </OutsideClickHandler>
     );
 })

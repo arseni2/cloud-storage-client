@@ -23,11 +23,11 @@ const ContextMenu = (props: PropsType) => {
     const [isRemove, setRemove] = useState(false)
     const [isDownload, setDownload] = useState(false)
     React.useEffect(() => {
-        if(isRemove) {
+        if (isRemove) {
             dispatch(removeFileOrFolderThunk({title: props.title, type: props.type}))
         }
     }, [isRemove])
-    if(isRemove || isDownload) closeContextMenu()
+    if (isRemove || isDownload) closeContextMenu()
     return (
         <div className={styles.context_menu} style={{top: props.cords.y, left: props.cords.x}}>
             <ContextMenuItem text={'Rename'} icon={penIcon} callback={props.setEditMode}/>

@@ -10,6 +10,8 @@ import {
     renameFolderThunk
 } from "../../redux/reducers/FileFolderReducer";
 import {getErrorMessage} from "../../redux/selectors/FileFolderReducerSelectors";
+import {getFromUrlLastWord} from "../../utils/utils";
+import {useLocation} from "react-router-dom";
 
 type PropsType = {
     setEditMode: (edit: boolean) => void
@@ -19,6 +21,7 @@ type PropsType = {
 }
 export const FolderForm = (props: PropsType) => {
     const dispatch = useDispatch()
+    const location = useLocation()
     const errorCreateFolder = useSelector(getErrorMessage)
     const [title, setTitle] = useState(props.old_title)
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,11 +34,13 @@ export const FolderForm = (props: PropsType) => {
                     ? dispatch(renameFolderThunk({new_title: title, old_title: props.old_title}))
                     : dispatch(renameFileThunk({new_title: title, old_title: props.old_title}))
             } else {
-                dispatch(removeError())
-                dispatch(createFolderThunk({title, parent_title: null}))
+                 const folder_parent = getFromUrlLastWord(location.pathname)
+                dispatch(createFolderThunk({title, parent_title: folder_parent || null}))
             }
         }
         if (e.key === 'Escape') {
+            // @ts-ignore
+            dispatch(removeError())
             props.setEditMode(false)
         }
     }

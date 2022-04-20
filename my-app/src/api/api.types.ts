@@ -45,3 +45,14 @@ export type removeFileOrFolderResponse = {
     raw: any[]
     affected: 0 | 1
 }
+
+export type moveToFolderParams = {
+    title: string
+    title_placed: string
+    type: 'file' | 'folder'
+}
+
+export type getFolderChildrenParams = {
+    title: string
+    type: 'file' | 'folder'
+}

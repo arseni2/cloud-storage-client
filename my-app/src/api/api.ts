@@ -1,9 +1,9 @@
 import {instance} from "./axios.config";
 import {
-    createFolderParams,
+    createFolderParams, errorResponseFiles,
     FileType,
     FolderType,
-    getFileFoldersResponse,
+    getFileFoldersResponse, getFolderChildrenParams, moveToFolderParams,
     removeFileOrFolderParams, removeFileOrFolderResponse,
     renameFileOrFolderParams
 } from "./api.types";
@@ -39,4 +39,14 @@ export const addFiles = (files: FileList): Promise<FileType[]> => {
         formData.append(file.name, file)
     })
     return instance.post('file/upload', formData).then(res => res.data)
+}
+
+export const moveToFolder = (payload: moveToFolderParams): Promise<FileType | FolderType | errorResponseFiles> => {
+    const {type, title, title_placed} = payload
+    const url = type === 'folder' ? 'folder/move' : 'file/move'
+    return instance.post(url, {title, title_placed}).then(res => res.data)
+}
+
+export const getFolderChildren = (folder_title: string): Promise<getFileFoldersResponse> => {
+    return instance.get(`folder/detail/${folder_title}`).then(res => res.data)
 }
